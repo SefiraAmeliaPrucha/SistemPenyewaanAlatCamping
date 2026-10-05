@@ -57,7 +57,19 @@ public class SistemPenyewaanAlatCamping {
             System.out.println();
             System.out.printf("Tidak ada alat dengan harga sewa maksimal Rp%.0f.%n", hargaMaksimal);
         }
-    }  
+    }
+    
+    public static void prosesPenyewaan(AlatCamping alat){
+        System.out.println();
+        System.out.println(" -----------------------------------------------------");
+        System.out.println("|                   PROSES PENYEWAAN                  |");
+        System.out.println(" -----------------------------------------------------");
+        System.out.println("Alat yang dipilih:");
+        alat.tampilkanInfo();
+        
+        System.out.println();
+        alat.sewa();  
+    }
     
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -83,10 +95,11 @@ public class SistemPenyewaanAlatCamping {
             System.out.println("|  1. Tambah Alat                                     |");
             System.out.println("|  2. Tampilan Seluruh Alat                           |");
             System.out.println("|  3. Pencarian Khusus                                |");
-            System.out.println("|  4. Keluar                                          |");
+            System.out.println("|  4. Simulasi Penyewaan                              |");
+            System.out.println("|  5. Keluar                                          |");
             System.out.println(" -----------------------------------------------------");
 
-            System.out.print(" Pilih menu [1-4]: ");
+            System.out.print(" Pilih menu [1-5]: ");
             int pilihan = scanner.nextInt();
             scanner.nextLine();
 
@@ -103,13 +116,15 @@ public class SistemPenyewaanAlatCamping {
                         System.out.println(" -----------------------------------------------------");
                         System.out.println("|  1. Tenda                                           |");
                         System.out.println("|  2. Kompor                                          |");
+                        System.out.println("|  3. Carrier                                          |");
+                        System.out.println("|  4. Matras                                          |");
                         System.out.println(" -----------------------------------------------------");
 
                         System.out.print(" Pilihan: ");
                         int jenisAlat = scanner.nextInt();
                         scanner.nextLine();
 
-                        if(jenisAlat == 1 || jenisAlat == 2){
+                        if(jenisAlat >= 1 && jenisAlat <= 4){
                             System.out.println();
                             System.out.println("-------------------DATA UMUM ALAT----------------");
                             System.out.print(" Kode Alat            : ");
@@ -137,7 +152,7 @@ public class SistemPenyewaanAlatCamping {
 
                                 System.out.println();
                                 System.out.println("Tenda berhasil ditambahkan!");
-                            } else{
+                            }else if (jenisAlat == 2){
                                 System.out.println();
                                 System.out.println("---------------- DATA KOMPOR --------------------");
                                 System.out.print(" Jenis Bahan Bakar          : ");
@@ -150,6 +165,34 @@ public class SistemPenyewaanAlatCamping {
 
                                 System.out.println();
                                 System.out.println("Kompor berhasil ditambahkan!");
+                            }else if (jenisAlat == 3) {
+                                System.out.println();
+                                System.out.println("--------------- DATA CARRIER --------------------");
+                                System.out.print(" Kapasitas Carrier        : ");
+                                
+                                int kapasitasLiter = scanner.nextInt();
+                                scanner.nextLine();
+                                
+                                Carrier carrierBaru = new Carrier(kode, nama, harga, stok, kapasitasLiter);
+                                
+                                daftarAlat[jumlahAlat] = carrierBaru;
+                                jumlahAlat++;
+                                
+                                System.out.println();
+                                System.out.println("Carrier berhasil ditambahkan!");
+                            }else{
+                                System.out.println();
+                                System.out.println("---------------- DATA MATRAS --------------------");
+                                System.out.print(" Jenis Matras             : ");
+
+                                String jenisMatras = scanner.nextLine();
+                                Matras matrasBaru = new Matras(kode, nama, harga, stok, jenisMatras);
+
+                                daftarAlat[jumlahAlat] = matrasBaru;
+                                jumlahAlat++;
+
+                                System.out.println();
+                                System.out.println("Matras berhasil ditambahkan!");
                             }
 
                         } else{
@@ -195,9 +238,8 @@ public class SistemPenyewaanAlatCamping {
                     System.out.println();
                     System.out.println(" 1. Cari berdasarkan Nama");
                     System.out.println(" 2. Cari berdasarkan Harga");
-                    System.out.println(" 3. Sewa Alat");
 
-                    System.out.println("\n Pilih aksi [1-3] : ");
+                    System.out.println("\n Pilih aksi [1-2] : ");
                     int pilihanAksi = scanner.nextInt();
                     scanner.nextLine();
 
@@ -210,28 +252,7 @@ public class SistemPenyewaanAlatCamping {
                         double hargaCari = scanner.nextDouble();
                         scanner.nextLine();
                         cariAlat(hargaCari, daftarAlat, jumlahAlat);
-                    }else if(pilihanAksi == 3){
-                        System.out.println();
-                        System.out.println("----------- PENYEWAAN ALAT -----------");
-                        System.out.print(" Masukkan kode alat : ");
-                        String kodeCari = scanner.nextLine();
-                        boolean ditemukan = false;
-
-                        for (int i = 0; i < jumlahAlat; i++){
-                            if (daftarAlat[i].getKodeAlat().equalsIgnoreCase(kodeCari)){
-                                System.out.println();
-                                System.out.println(" Alat yang dipilih:");
-                                daftarAlat[i].tampilkanInfo();
-                                System.out.println();
-                                daftarAlat[i].sewa();
-                                ditemukan = true;
-                                break;
-                            }
-                        }
-                        if (!ditemukan){
-                            System.out.println();
-                            System.out.println(" Kode alat tidak ditemukan.");
-                        }
+                    
                     }else{
                         System.out.println();
                         System.out.println(" Pilihan tidak valid!");
@@ -240,7 +261,36 @@ public class SistemPenyewaanAlatCamping {
                     System.out.println(" Tekan ENTER untuk kembali ke menu...");
                     scanner.nextLine();
                     break;
+                
                 case 4:
+                    System.out.println();
+                    System.out.println(" -----------------------------------------------------");
+                    System.out.println("|                  SIMULASI PENYEWAAN                 |");
+                    System.out.println(" -----------------------------------------------------");
+                    System.out.println(" Masukkan kode alat            : ");
+                    String kodeSewa = scanner.nextLine();
+                    
+                    boolean ditemukan = false;
+                    
+                    for (int i = 0; i < jumlahAlat; i++){
+                        if (daftarAlat[i].getKodeAlat().equalsIgnoreCase(kodeSewa)){
+                            prosesPenyewaan(daftarAlat[i]);
+                            
+                            ditemukan = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!ditemukan){
+                        System.out.println();
+                        System.out.println(" Kode alat tidak ditemukan.");
+                    }
+                    System.out.println();
+                    System.out.println(" Tekan ENTER untuk kembali ke menu...");
+                    scanner.nextLine();
+                    break;
+
+                case 5:
                     System.out.println();
                     System.out.println(" =====================================================");
                     System.out.println("||                                                    ||");
@@ -255,7 +305,7 @@ public class SistemPenyewaanAlatCamping {
                 default:
                     System.out.println();
                     System.out.println(" Pilihan tidak valid!");
-                    System.out.println(" Dilakan masukkan angka 1 sampai 4");
+                    System.out.println(" Silakan masukkan angka 1 sampai 5");
 
 
 
