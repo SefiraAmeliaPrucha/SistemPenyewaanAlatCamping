@@ -8,7 +8,7 @@ package com.mycompany.sistempenyewaanalatcamping;
  *
  * @author sefir
  */
-public class Matras extends AlatCamping {
+public class Matras extends AlatCamping implements DapatDisewakan {
     private String jenisMatras;
     
     public Matras(String kodeAlat, String namaAlat, double hargaSewa, int stok, String jenisMatras){
@@ -26,8 +26,12 @@ public class Matras extends AlatCamping {
         }
     }
     @Override 
-    public void tampilkanInfo(){
-        super.tampilkanInfo();
+    public void tampilkanInfoKhusus(){
+ 
         System.out.println("Jenis Matras: " + this.jenisMatras);
+    }
+    @Override
+    public void tampilkanStatusPenyewaan(){
+        System.out.println("Matras dapat disewakan melalui sistem penyewaan.");
     }
 }

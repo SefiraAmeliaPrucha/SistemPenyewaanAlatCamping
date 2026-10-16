@@ -8,7 +8,7 @@ package com.mycompany.sistempenyewaanalatcamping;
  *
  * @author sefir
  */
-public class Tenda extends AlatCamping {
+public class Tenda extends AlatCamping implements DapatDisewakan, DapatDiperiksa {
     private int kapasitas;
     public Tenda(String kodeAlat, String namaAlat, double hargaSewa, int stok, int kapasitas){
         super(kodeAlat, namaAlat, hargaSewa, stok);
@@ -28,8 +28,16 @@ public class Tenda extends AlatCamping {
     }
     
     @Override
-    public void tampilkanInfo(){
-        super.tampilkanInfo();
+    public void tampilkanInfoKhusus(){
+      
         System.out.println("Kapasitas Tenda: " + this.kapasitas + "orang");
-    }  
+    }
+    @Override
+    public void tampilkanStatusPenyewaan(){
+        System.out.println("Tenda dapat disewakan melalui sistem penyewaan.");
+    }
+    @Override
+    public void periksaKondisi(){
+        System.out.println("Pemeriksaan tenda: periksa kain, tiang, dan pasak.");
+    }
 }

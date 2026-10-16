@@ -8,12 +8,12 @@ package com.mycompany.sistempenyewaanalatcamping;
  *
  * @author sefir
  */
-public class Carrier extends AlatCamping {
+public class Carrier extends AlatCamping implements DapatDisewakan {
     private int kapasitasLiter;
     
     public Carrier(String kodeAlat, String namaAlat, double hargaSewa, int stok, int kapasitasLiter){
         super(kodeAlat, namaAlat, hargaSewa, stok);
-        this.kapasitasLiter = kapasitasLiter;
+        setKapasitasLiter(kapasitasLiter);
     }
     public int getKapasitasLiter(){
         return this.kapasitasLiter;
@@ -27,8 +27,12 @@ public class Carrier extends AlatCamping {
     }
     
     @Override
-    public void tampilkanInfo(){
-        super.tampilkanInfo();
+    public void tampilkanInfoKhusus(){
         System.out.println("Kapasitas Carrier: " + this.kapasitasLiter + " liter");
+    }
+    
+    @Override
+    public void tampilkanStatusPenyewaan(){
+        System.out.println("Carrier dapat disewakan melalui sistem penyewaan.");
     }
 }

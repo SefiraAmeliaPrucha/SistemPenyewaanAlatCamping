@@ -8,7 +8,7 @@ package com.mycompany.sistempenyewaanalatcamping;
  *
  * @author sefir
  */
-public class AlatCamping {
+public abstract class AlatCamping {
     private String kodeAlat;
     private String namaAlat;
     private double hargaSewa;
@@ -19,8 +19,9 @@ public class AlatCamping {
     public AlatCamping(String kodeAlat, String namaAlat, double hargaSewa, int stok){
         this.kodeAlat = kodeAlat;
         this.namaAlat = namaAlat;
-        this.hargaSewa = hargaSewa;
-        this.stok = stok;
+        setHargaSewa(hargaSewa);
+        setStok(stok);
+        
         
         totalAlat++;
     }
@@ -68,8 +69,13 @@ public class AlatCamping {
         return totalAlat;
     }
     
+    //Abstract Method
+    public abstract void tampilkanInfoKhusus();
+    
     public void tampilkanInfo(){
         System.out.printf("Kode: %-8s | Nama: %20s | Harga Sewa: Rp%.0f | Stok: %d%n", this.kodeAlat, this.namaAlat, this.hargaSewa, this.stok);
+        tampilkanInfoKhusus();
+    
     }
     
     public void sewa(){
