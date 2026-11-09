@@ -1,28 +1,18 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-
 package com.mycompany.sistempenyewaanalatcamping;
 
 /**
  *
  * @author sefir
  */
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class SistemPenyewaanAlatCamping {
 
-    // COLLECTION 1: menyimpan objek alat secara dinamis
-    private static ArrayList<AlatCamping> daftarAlat =
-            new ArrayList<>();
-
-    // COLLECTION 2: ID pelanggan sebagai key, nama sebagai value
-    private static HashMap<String, String> daftarPelanggan =
-            new HashMap<>();
+    private static RentalAlatCamping rental;
 
     // Memeriksa teks kosong dengan throw
     public static String validasiTeks(
@@ -69,14 +59,14 @@ public class SistemPenyewaanAlatCamping {
 
         kode = validasiTeks(kode, "Kode alat");
 
-        for (AlatCamping alat : daftarAlat) {
-            if (alat.getKodeAlat().equalsIgnoreCase(kode)) {
-                return alat;
-            }
+        AlatCamping alat = rental.cariAlat(kode);
+
+        if (alat == null) {
+            throw new DataPenyewaanException(
+                    "Alat dengan kode " + kode + " tidak ditemukan.");
         }
 
-        throw new DataPenyewaanException(
-                "Alat dengan kode " + kode + " tidak ditemukan.");
+        return alat;
     }
 
     // Pencarian berdasarkan nama
@@ -86,7 +76,7 @@ public class SistemPenyewaanAlatCamping {
         nama = validasiTeks(nama, "Nama alat");
         boolean ditemukan = false;
 
-        for (AlatCamping alat : daftarAlat) {
+        for (AlatCamping alat : rental.getDaftarAlat()) {
             if (alat.getNamaAlat().equalsIgnoreCase(nama)) {
                 alat.tampilkanInfo();
                 ditemukan = true;
@@ -110,7 +100,7 @@ public class SistemPenyewaanAlatCamping {
 
         boolean ditemukan = false;
 
-        for (AlatCamping alat : daftarAlat) {
+        for (AlatCamping alat : rental.getDaftarAlat()) {
             if (alat.getHargaSewa() <= maksimal) {
                 alat.tampilkanInfo();
                 ditemukan = true;
@@ -146,7 +136,7 @@ public class SistemPenyewaanAlatCamping {
         String kode = validasiTeks(sc.nextLine(), "Kode alat");
 
         // Mastiin kode alat unik
-        for (AlatCamping alat : daftarAlat) {
+        for (AlatCamping alat : rental.getDaftarAlat()) {
             if (alat.getKodeAlat().equalsIgnoreCase(kode)) {
                 throw new DataPenyewaanException(
                         "Kode alat sudah digunakan.");
@@ -212,11 +202,11 @@ public class SistemPenyewaanAlatCamping {
                 break;
         }
 
-        daftarAlat.add(alatBaru);
+        rental.tambahAlat(alatBaru);
 
         System.out.println("Alat berhasil ditambahkan!");
         System.out.println("Jumlah alat sekarang: "
-                + daftarAlat.size());
+                + rental.getDaftarAlat().size());
     }
 
     // Menampilkan seluruh objek ArrayList
@@ -224,17 +214,18 @@ public class SistemPenyewaanAlatCamping {
 
         System.out.println("\n=== DAFTAR ALAT CAMPING ===");
 
-        if (daftarAlat.isEmpty()) {
+        if (rental.getDaftarAlat().isEmpty()) {
             System.out.println("Belum ada alat yang tersimpan.");
             return;
         }
 
-        for (int i = 0; i < daftarAlat.size(); i++) {
+        for (int i = 0; i < rental.getDaftarAlat().size(); i++) {
             System.out.println("\nData alat ke-" + (i + 1));
-            daftarAlat.get(i).tampilkanInfo();
+            rental.getDaftarAlat().get(i).tampilkanInfo();
         }
 
-        System.out.println("\nJumlah alat: " + daftarAlat.size());
+        System.out.println("\nJumlah alat: "
+                + rental.getDaftarAlat().size());
         System.out.println("Total objek dibuat: "
                 + AlatCamping.getTotalAlat());
     }
@@ -284,12 +275,12 @@ public class SistemPenyewaanAlatCamping {
 
         System.out.println("\n=== PENGUJIAN INTERFACE ===");
 
-        if (daftarAlat.isEmpty()) {
+        if (rental.getDaftarAlat().isEmpty()) {
             System.out.println("Belum ada data alat.");
             return;
         }
 
-        for (AlatCamping alat : daftarAlat) {
+        for (AlatCamping alat : rental.getDaftarAlat()) {
             System.out.println("\nData alat:");
             alat.tampilkanInfo();
 
@@ -330,7 +321,7 @@ public class SistemPenyewaanAlatCamping {
                     String id = validasiTeks(
                             sc.nextLine(), "ID pelanggan");
 
-                    if (daftarPelanggan.containsKey(id)) {
+                    if (rental.cariPelanggan(id) != null) {
                         throw new DataPenyewaanException(
                                 "ID pelanggan sudah terdaftar.");
                     }
@@ -340,7 +331,10 @@ public class SistemPenyewaanAlatCamping {
                             sc.nextLine(), "Nama pelanggan");
 
                     // HashMap .put()
-                    daftarPelanggan.put(id, nama);
+                    Pelanggan pelangganBaru =
+                            new Pelanggan(id, nama);
+
+                    rental.tambahPelanggan(pelangganBaru);
 
                     System.out.println(
                             "Pelanggan berhasil ditambahkan.");
@@ -352,11 +346,12 @@ public class SistemPenyewaanAlatCamping {
                             sc.nextLine(), "ID pelanggan");
 
                     // HashMap .containsKey() dan .get()
-                    if (daftarPelanggan.containsKey(cariID)) {
+                    Pelanggan pelanggan =
+                            rental.cariPelanggan(cariID);
+
+                    if (pelanggan != null) {
                         System.out.println("Data ditemukan.");
-                        System.out.println("ID: " + cariID);
-                        System.out.println("Nama: "
-                                + daftarPelanggan.get(cariID));
+                        pelanggan.tampilkanInfo();
                     } else {
                         throw new DataPenyewaanException(
                                 "Pelanggan dengan ID "
@@ -365,24 +360,7 @@ public class SistemPenyewaanAlatCamping {
                     break;
 
                 case 3:
-                    if (daftarPelanggan.isEmpty()) {
-                        System.out.println(
-                                "Belum ada data pelanggan.");
-                    } else {
-                        System.out.println(
-                                "\n--- SELURUH PELANGGAN ---");
-
-                        for (Map.Entry<String, String> data
-                                : daftarPelanggan.entrySet()) {
-                            System.out.println(
-                                    "ID: " + data.getKey()
-                                    + " | Nama: "
-                                    + data.getValue());
-                        }
-
-                        System.out.println("Jumlah pelanggan: "
-                                + daftarPelanggan.size());
-                    }
+                    rental.tampilkanSemuaPelanggan();
                     break;
 
                 case 4:
@@ -396,26 +374,71 @@ public class SistemPenyewaanAlatCamping {
         }
     }
 
+    // Menu transaksi penyewaan
+    public static void menuTransaksi(Scanner sc)
+            throws DataPenyewaanException {
+
+        System.out.println("\n=== TRANSAKSI PENYEWAAN ===");
+
+        System.out.print("Masukkan ID pelanggan: ");
+        String id = validasiTeks(
+                sc.nextLine(), "ID pelanggan");
+
+        System.out.print("Masukkan kode alat: ");
+        String kode = validasiTeks(
+                sc.nextLine(), "Kode alat");
+
+        Pelanggan pelanggan = rental.cariPelanggan(id);
+        AlatCamping alat = cariAlatByKode(kode);
+
+        if (pelanggan == null) {
+            throw new DataPenyewaanException(
+                    "Pelanggan dengan ID " + id
+                    + " tidak ditemukan.");
+        }
+
+        TransaksiPenyewaan transaksi =
+                new TransaksiPenyewaan();
+
+        transaksi.prosesSewa(pelanggan, alat);
+    }
+
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
         boolean berjalan = true;
 
-        // Empat objek awal untuk ArrayList
-        daftarAlat.add(
-                new Tenda("T001", "Tenda Dome", 50000, 5, 4));
-        daftarAlat.add(
-                new Kompor("K001", "Kompor Portable", 20000, 3, "Gas"));
-        daftarAlat.add(
-                new Carrier("C001", "Carrier Gunung", 30000, 4, 60));
-        daftarAlat.add(
-                new Matras("M001", "Matras Camping", 10000, 8,
-                        "Aluminium"));
+        // Membuat objek RentalAlatCamping
+        rental = new RentalAlatCamping();
+
+        // Membuat objek alat dari luar RentalAlatCamping
+        AlatCamping tenda = new Tenda("T001", "Tenda Dome", 50000, 5, 4);
+
+        AlatCamping kompor = new Kompor("K001", "Kompor Portable", 20000, 3, "Gas");
+
+        AlatCamping carrier = new Carrier("C001", "Carrier Gunung", 30000, 4, 60);
+
+        AlatCamping matras = new Matras("M001", "Matras Camping", 10000, 8, "Aluminium");
+
+        // Memasukkan objek ke dalam RentalAlatCamping
+        rental.tambahAlat(tenda);
+        rental.tambahAlat(kompor);
+        rental.tambahAlat(carrier);
+        rental.tambahAlat(matras);
 
         // Tiga data awal untuk HashMap
-        daftarPelanggan.put("P001", "Budi");
-        daftarPelanggan.put("P002", "Siti");
-        daftarPelanggan.put("P003", "Andi");
+        // Membuat objek pelanggan
+        Pelanggan p1 = new Pelanggan("P001", "Budi");
+        Pelanggan p2 = new Pelanggan("P002", "Siti");
+        Pelanggan p3 = new Pelanggan("P003", "Andi");
+
+        // Memasukkan pelanggan ke dalam rental
+        rental.tambahPelanggan(p1);
+        rental.tambahPelanggan(p2);
+        rental.tambahPelanggan(p3);
+
+        // Membuat objek transaksi
+        TransaksiPenyewaan transaksi = new TransaksiPenyewaan();
 
         System.out.println("======================================");
         System.out.println(" SISTEM PENYEWAAN ALAT CAMPING");
@@ -423,13 +446,16 @@ public class SistemPenyewaanAlatCamping {
 
         while (berjalan) {
             System.out.println("\n============== MENU UTAMA ==============");
-            System.out.println("1. Tambah alat");
+            System.out.println("1. Informasi komponen Gudang");
             System.out.println("2. Tampilkan seluruh alat");
-            System.out.println("3. Pencarian dan penyewaan alat");
-            System.out.println("4. Pengujian interface dan instanceof");
-            System.out.println("5. Kelola data pelanggan (HashMap)");
-            System.out.println("6. Keluar");
-            System.out.print("Pilih menu [1-6]: ");
+            System.out.println("3. Tampilkan seluruh pelanggan");
+            System.out.println("4. Proses transaksi penyewaan");
+            System.out.println("5. Tambah alat");
+            System.out.println("6. Pencarian dan penyewaan alat");
+            System.out.println("7. Pengujian interface dan instanceof");
+            System.out.println("8. Kelola data pelanggan");
+            System.out.println("9. Keluar");
+            System.out.print("Pilih menu [1-9]: ");
 
             try {
                 int pilihan = Integer.parseInt(
@@ -437,7 +463,7 @@ public class SistemPenyewaanAlatCamping {
 
                 switch (pilihan) {
                     case 1:
-                        tambahAlat(sc);
+                        rental.tampilkanInfoKomponen();
                         break;
 
                     case 2:
@@ -445,18 +471,30 @@ public class SistemPenyewaanAlatCamping {
                         break;
 
                     case 3:
-                        menuPencarian(sc);
+                        rental.tampilkanSemuaPelanggan();
                         break;
 
                     case 4:
-                        ujiInterface();
+                        menuTransaksi(sc);
                         break;
 
                     case 5:
-                        menuPelanggan(sc);
+                        tambahAlat(sc);
                         break;
 
                     case 6:
+                        menuPencarian(sc);
+                        break;
+
+                    case 7:
+                        ujiInterface();
+                        break;
+
+                    case 8:
+                        menuPelanggan(sc);
+                        break;
+
+                    case 9:
                         berjalan = false;
                         System.out.println(
                                 "Terima kasih telah menggunakan program.");
@@ -464,7 +502,7 @@ public class SistemPenyewaanAlatCamping {
 
                     default:
                         throw new DataPenyewaanException(
-                                "Pilihan menu harus antara 1 sampai 6.");
+                                "Pilihan menu harus antara 1 sampai 9.");
                 }
 
             } catch (NumberFormatException e) {
@@ -487,3 +525,4 @@ public class SistemPenyewaanAlatCamping {
         System.out.println("Scanner ditutup. Program berakhir.");
     }
 }
+
